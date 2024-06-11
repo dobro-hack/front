@@ -1,30 +1,120 @@
 <template>
-  <nav>
-    <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link>
-  </nav>
-  <router-view/>
+  <div class="root">
+    <div class="header"></div>
+    <div class="wrapper">
+      <div class="tabs">
+        <router-link
+          v-for="tab in tabs"
+          :key="tab.value"
+          :to="tab.value"
+          @click="selectTab(tab.value)"
+          :class="{ 'tab-link': true, active: selectedTab === tab.value }"
+        >
+          {{ tab.label }}
+        </router-link>
+      </div>
+      <div class="content">
+        <router-view></router-view>
+      </div>
+    </div>
+  </div>
 </template>
 
-<style lang="scss">
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
+<script setup>
+import { ref } from "vue";
+
+const tabs = [
+  { label: "Заявки", value: "requests" },
+  { label: "Сообщения от посетителей", value: "visitor-messages" },
+  { label: "Проблемы со спутника", value: "satellite-issues" },
+  { label: "Маршруты", value: "routes" },
+  { label: "Роли", value: "roles" },
+];
+
+const selectedTab = ref("requests");
+
+const selectTab = (value) => {
+  selectedTab.value = value;
+};
+</script>
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Roboto", sans-serif;
+  font-weight: 400;
 }
 
-nav {
-  padding: 30px;
+html,
+body {
+  height: 100%;
+}
 
-  a {
-    font-weight: bold;
-    color: #2c3e50;
+#app {
+  height: 100%;
+}
 
-    &.router-link-exact-active {
-      color: #42b983;
-    }
-  }
+.root {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  height: 100%;
+}
+
+body {
+  background: #ebedf0;
+}
+
+.header {
+  background: #fff;
+  width: 100%;
+  height: 52px;
+  margin-bottom: 8px;
+}
+
+.wrapper {
+  width: 1024px;
+  margin: 0 auto;
+  flex: 0 0 auto;
+}
+
+.content {
+  width: 100%;
+  background: #fff;
+  padding: 8px 0px 8px 0px;
+  gap: 0px;
+  border-radius: 16px;
+  opacity: 0px;
+  padding: 8px 16px;
+}
+
+.tabs {
+  display: flex;
+  margin: 8px 0;
+}
+
+.tab-link {
+  padding: 10px 20px;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  font-size: 16px;
+  text-decoration: none;
+  color: #6c757d;
+  display: flex;
+  align-items: center;
+}
+
+.tab-link.active {
+  background-color: #ffffff;
+  color: #28a745;
+  border-radius: 4px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.tab-link:hover {
+  color: #28a745;
 }
 </style>
