@@ -7,8 +7,7 @@
           v-for="tab in tabs"
           :key="tab.value"
           :to="tab.value"
-          @click="selectTab(tab.value)"
-          :class="{ 'tab-link': true, active: selectedTab === tab.value }"
+          :class="{ 'tab-link': true }"
         >
           {{ tab.label }}
         </router-link>
@@ -21,8 +20,6 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
-
 const tabs = [
   { label: "Заявки", value: "requests" },
   { label: "Сообщения от посетителей", value: "visitor-messages" },
@@ -30,12 +27,6 @@ const tabs = [
   { label: "Маршруты", value: "routes" },
   { label: "Роли", value: "roles" },
 ];
-
-const selectedTab = ref("requests");
-
-const selectTab = (value) => {
-  selectedTab.value = value;
-};
 </script>
 
 <style>
@@ -107,7 +98,7 @@ body {
   align-items: center;
 }
 
-.tab-link.active {
+.tab-link.router-link-active {
   background-color: #ffffff;
   color: #28a745;
   border-radius: 4px;
