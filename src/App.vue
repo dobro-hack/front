@@ -22,10 +22,10 @@
 <script setup>
 const tabs = [
   { label: "Заявки", value: "requests" },
-  { label: "Сообщения от посетителей", value: "visitor-messages" },
-  { label: "Проблемы со спутника", value: "satellite-issues" },
+  { label: "Сообщения от посетителей", value: "messages" },
+  { label: "Вместимость", value: "capacity" },
   { label: "Маршруты", value: "routes" },
-  { label: "Роли", value: "roles" },
+  { label: "Проблемы со спутника", value: "satellite" },
 ];
 </script>
 
@@ -107,5 +107,8 @@ body {
 
 .tab-link:hover {
   color: #28a745;
+}
+.leaflet-bottom {
+  display: none;
 }
 </style>

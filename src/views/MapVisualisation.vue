@@ -1,51 +1,52 @@
 <template>
-  <div>
-    <div id="map" style="height: 500px"></div>
-  </div>
+  <div id="map" style="width: 100%; height: 600px"></div>
 </template>
 
-<script>
-import { ref, onMounted } from "vue";
+<script setup>
+import { onMounted } from "vue";
 import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+import "leaflet-gpx";
 
-export default {
-  setup() {
-    const map = ref(null);
+onMounted(() => {
+  const map = L.map("map").setView([51.505, -0.09], 13);
 
-    const initializeMap = () => {
-      map.value = L.map("map").setView([51.505, -0.09], 13);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 18,
+  }).addTo(map);
 
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: "© OpenStreetMap contributors",
-      }).addTo(map.value);
+  const gpxFiles = [
+    "/assets/maps/pinachevo.gpx",
+    //"/assets/maps/vulkashiki.gpx",
+  ];
 
-      // Пример данных
-      const data = [
-        { lat: 51.5, lng: -0.09, load: 50 },
-        { lat: 51.51, lng: -0.1, load: 70 },
-      ];
+  const bounds = L.latLngBounds();
 
-      data.forEach((point) => {
-        L.circle([point.lat, point.lng], {
-          color: point.load > 60 ? "red" : "green",
-          radius: 500,
-        }).addTo(map.value);
-      });
-    };
+  let loadedCount = 0;
 
-    onMounted(() => {
-      initializeMap();
-    });
+  gpxFiles.forEach((gpxFile) => {
+    new L.GPX(gpxFile, {
+      async: true,
+      marker_options: {
+        shadowUrl: null,
+      },
+    })
+      .on("loaded", function (e) {
+        bounds.extend(e.target.getBounds());
+        loadedCount++;
 
-    return {
-      map,
-    };
-  },
-};
+        if (loadedCount === gpxFiles.length) {
+          map.fitBounds(bounds);
+        }
+      })
+      .addTo(map);
+  });
+});
 </script>
 
-<style>
+<style scoped>
 #map {
-  height: 500px;
+  width: 100%;
+  height: 600px;
 }
 </style>

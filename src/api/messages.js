@@ -3,7 +3,7 @@ import API_BASE_URL from "./config";
 export const fetchMessages = async (page, limit) => {
   try {
     const response = await fetch(
-      `${API_BASE_URL}/messages?page=${page}&limit=${limit}`
+      `${API_BASE_URL}/messages-sql?page=${page}&limit=${limit}`
     );
     if (!response.ok) {
       throw new Error(`An error occurred: ${response.statusText}`);
