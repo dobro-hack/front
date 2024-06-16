@@ -6,7 +6,7 @@
     </div>
     <div class="pagination-controls">
       <button @click="prevPage" :disabled="page === 1">Previous</button>
-      <span>Page {{ page }}</span>
+      <span>Страница {{ page }}</span>
       <button @click="nextPage">Next</button>
     </div>
     <div class="table-wrapper">

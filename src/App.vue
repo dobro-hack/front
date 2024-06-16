@@ -78,7 +78,6 @@ body {
   padding: 8px 0px 8px 0px;
   gap: 0px;
   border-radius: 16px;
-  opacity: 0px;
   padding: 8px 16px;
 }
 

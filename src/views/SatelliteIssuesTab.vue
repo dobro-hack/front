@@ -1,7 +1,3 @@
-<template>
-  <MapAddRoute></MapAddRoute>
-</template>
+<template></template>
 
-<script setup>
-import MapAddRoute from "./MapAddRoute.vue";
-</script>
+<script setup></script>
