@@ -58,15 +58,28 @@
       </div>
       <div v-if="formulas.length">
         <h4>Формулы для площадных объектов</h4>
-        <ul>
-          <li v-for="formula in formulas" :key="formula.placeId">
-            {{ formula.formula }}
-          </li>
-        </ul>
+        <div class="formula-container">
+          <div
+            v-for="formula in formulas"
+            :key="formula.placeId"
+            class="formula-item"
+          >
+            <div class="formula-content">{{ formula.formula }}</div>
+            <p class="formula-explanation">
+              Эта формула рассчитывает емкость для конкретного места на
+              маршруте.
+            </p>
+          </div>
+        </div>
       </div>
       <div v-if="totalFormula">
         <h4>Итоговая формула</h4>
-        <p>{{ totalFormula }}</p>
+        <div class="formula-total">
+          <div class="formula-content">{{ totalFormula }}</div>
+          <p class="formula-explanation">
+            Это комбинированная формула для всех частей маршрута и мест.
+          </p>
+        </div>
       </div>
       <div v-if="bcc !== null">
         <h4>Базовая рекреационная емкость: {{ bcc }} человек</h4>
@@ -83,7 +96,6 @@
 
 <script setup>
 import { ref, onMounted, watch } from "vue";
-import LoadChart from "../components/LoadChart.vue";
 import { fetchRoutes } from "@/api/routes";
 import { fetchPlacesByRouteId } from "@/api/place";
 
@@ -267,32 +279,36 @@ button:hover {
   border-radius: 5px;
 }
 
-.coefficient-sliders {
-  display: flex;
-  flex-wrap: wrap;
+.formula-container {
+  display: grid;
+  grid-template-columns: 1fr;
   gap: 1em;
 }
 
-.coefficient-slider {
-  flex: 0 0 100%;
-  display: flex;
-  gap: 0.5em;
+.formula-item {
+  background-color: #f0f8ff;
+  border: 1px solid #dcdcdc;
+  border-radius: 5px;
+  padding: 1em;
 }
 
-.coefficient-slider label {
+.formula-total {
+  background-color: #e6ffe6;
+  border: 1px solid #dcdcdc;
+  border-radius: 5px;
+  padding: 1em;
+}
+
+.formula-content {
+  font-size: 1.2em;
   font-weight: bold;
-  flex: 0 0 50%;
+  color: #333;
 }
 
-.coefficient-slider input {
-  flex: 0 0 50%;
-}
-
-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1em;
-  margin-bottom: 1em;
+.formula-explanation {
+  margin-top: 0.5em;
+  text-align: center;
+  color: #666;
 }
 
 .results {
