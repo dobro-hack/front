@@ -1,24 +1,28 @@
 <template>
-  <div id="map" style="width: 100%; height: 600px"></div>
-  <button @click="saveRoute">Сохранить маршрут</button>
+  <div>
+    <div id="edit-map" style="width: 100%; height: 600px"></div>
+    <input type="file" @change="handleFileUpload" />
+  </div>
 </template>
 
 <script setup>
-import { onMounted, ref } from "vue";
+import { onMounted, watch, ref } from "vue";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-gpx";
 import "leaflet-draw/dist/leaflet.draw.css";
 import "leaflet-draw";
 
+const props = defineProps(["route"]);
+const emit = defineEmits(["update-gpx-data"]);
 const route = ref([]);
 const drawnItems = new L.FeatureGroup();
 let map;
+const gpxFile = ref(null);
 
 onMounted(() => {
-  // Центрируем карту на координатах 57° с. ш. и 160° в. д.
   const centerCoordinates = [57, 160];
-  map = L.map("map").setView(centerCoordinates, 13).setZoom(5);
+  map = L.map("edit-map").setView(centerCoordinates, 13).setZoom(5);
 
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
 
@@ -50,18 +54,11 @@ onMounted(() => {
     layer.on("click", function () {
       layer.editing.enable();
     });
+    updateGpxData();
   });
 
-  map.on(L.Draw.Event.EDITED, function (event) {
-    const layers = event.layers;
-    layers.eachLayer(function (layer) {
-      const index = route.value.findIndex(
-        (r) => r._leaflet_id === layer._leaflet_id
-      );
-      if (index !== -1) {
-        route.value[index] = layer;
-      }
-    });
+  map.on(L.Draw.Event.EDITVERTEX, function () {
+    updateGpxData();
   });
 
   map.on(L.Draw.Event.DELETED, function (event) {
@@ -74,6 +71,7 @@ onMounted(() => {
         route.value.splice(index, 1);
       }
     });
+    updateGpxData();
   });
 
   drawnItems.eachLayer(function (layer) {
@@ -83,37 +81,104 @@ onMounted(() => {
   });
 });
 
-const saveRoute = () => {
+const updateGpxData = () => {
   const gpxData = `<?xml version="1.0" encoding="UTF-8"?>
-<gpx version="1.1" creator="Leaflet" xmlns="http://www.topografix.com/GPX/1/1">
-  <trk>
-    <name>My Route</name>
-    <trkseg>
-      ${route.value
-        .flatMap((layer) => layer.getLatLngs())
-        .map((point) => `<trkpt lat="${point.lat}" lon="${point.lng}"></trkpt>`)
-        .join("\n")}
-    </trkseg>
-  </trk>
-</gpx>`;
+  <gpx version="1.1" creator="Leaflet" xmlns="http://www.topografix.com/GPX/1/1">
+    <trk>
+      <name>${route.name}</name>
+      <trkseg>
+        ${route.value
+          .flatMap((layer) => layer.getLatLngs())
+          .map(
+            (point) => `<trkpt lat="${point.lat}" lon="${point.lng}"></trkpt>`
+          )
+          .join("\n")}
+      </trkseg>
+    </trk>
+  </gpx>`;
+  console.warn("gpxData", gpxData);
+  emit("update-gpx-data", gpxData);
+};
 
-  const blob = new Blob([gpxData], { type: "application/gpx+xml" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "route.gpx";
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
+watch(
+  () => props.route.gpx_data,
+  (newGpxData) => {
+    if (!newGpxData) return;
+
+    drawnItems.clearLayers();
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(newGpxData, "text/xml");
+    const latlngs = Array.from(xmlDoc.getElementsByTagName("trkpt")).map(
+      (trkpt) => {
+        const lat = parseFloat(trkpt.getAttribute("lat"));
+        const lon = parseFloat(trkpt.getAttribute("lon"));
+        return [lat, lon];
+      }
+    );
+    const polyline = new L.Polyline(latlngs, {
+      color: "blue",
+      weight: 3,
+    }).addTo(drawnItems);
+
+    if (polyline._latlngs.length === 0) return;
+
+    setTimeout(() => {
+      map.fitBounds(polyline.getBounds());
+    }, 0);
+    polyline.editing.enable();
+    route.value = [polyline];
+  },
+  { immediate: true }
+);
+
+const handleFileUpload = (event) => {
+  const file = event.target.files[0];
+  if (file && file.name.includes("gpx")) {
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      const parser = new DOMParser();
+      const xmlDoc = parser.parseFromString(e.target.result, "text/xml");
+      const latlngs = Array.from(xmlDoc.getElementsByTagName("trkpt")).map(
+        (trkpt) => {
+          const lat = parseFloat(trkpt.getAttribute("lat"));
+          const lon = parseFloat(trkpt.getAttribute("lon"));
+          return [lat, lon];
+        }
+      );
+      const polyline = new L.Polyline(latlngs, {
+        color: "blue",
+        weight: 3,
+      }).addTo(drawnItems);
+
+      map.fitBounds(polyline.getBounds());
+      polyline.editing.enable();
+      route.value = [polyline];
+      updateGpxData();
+    };
+    reader.readAsText(file);
+    gpxFile.value = file;
+  } else {
+    alert("Please upload a valid GPX file.");
+  }
 };
 </script>
 
-<style scoped>
-#map {
+<style>
+#edit-map {
   width: 100%;
   height: 600px;
 }
-button {
-  margin: 5px;
+input[type="file"] {
+  margin: 5px 0;
+}
+
+.leaflet-div-icon {
+  width: 14px !important;
+  height: 14px !important;
+  margin-left: -7px !important;
+  margin-top: -7px !important;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  background: blue;
 }
 </style>

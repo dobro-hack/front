@@ -18,7 +18,7 @@ export const fetchRoutes = async (page, limit) => {
 
 export const createRoute = async (route) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/routes`, {
+    const response = await fetch(`${API_BASE_URL}/routes-sql`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

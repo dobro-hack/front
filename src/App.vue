@@ -25,6 +25,7 @@ const tabs = [
   { label: "Сообщения от посетителей", value: "messages" },
   { label: "Вместимость", value: "capacity" },
   { label: "Маршруты", value: "routes" },
+  { label: "Места на маршруте", value: "places" },
   { label: "Проблемы со спутника", value: "satellite" },
 ];
 </script>

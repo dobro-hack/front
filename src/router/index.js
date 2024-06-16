@@ -4,6 +4,7 @@ import MessagesTab from "../views/MessagesTab.vue";
 import SatelliteIssuesTab from "../views/SatelliteIssuesTab.vue";
 import RoutesTab from "../views/RoutesTab.vue";
 import CapacityTab from "../views/CapacityTab.vue";
+import PlacesTab from "../views/PlacesTab.vue";
 
 const routes = [
   {
@@ -29,6 +30,11 @@ const routes = [
     path: "/routes",
     name: "routes",
     component: RoutesTab,
+  },
+  {
+    path: "/places",
+    name: "places",
+    component: PlacesTab,
   },
   {
     path: "/capacity",
