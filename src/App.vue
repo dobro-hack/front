@@ -64,6 +64,7 @@ body {
   width: 100%;
   height: 52px;
   margin-bottom: 8px;
+  flex: 0 0 52px;
 }
 
 .wrapper {
@@ -75,10 +76,9 @@ body {
 .content {
   width: 100%;
   background: #fff;
-  padding: 8px 0px 8px 0px;
   gap: 0px;
   border-radius: 16px;
-  padding: 8px 16px;
+  padding: 16px;
 }
 
 .tabs {

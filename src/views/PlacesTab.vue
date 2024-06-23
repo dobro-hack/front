@@ -1,164 +1,131 @@
 <template>
-  <div class="container">
-    <div class="header">
-      <h3>Места на маршруте</h3>
-    </div>
-
-    <div class="table-wrapper">
-      <table>
-        <thead>
-          <tr>
-            <th>Название маршрута</th>
-            <th>Длина (км)</th>
-            <th>Время в пути (мин)</th>
-            <th>Сложность</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr
-            v-for="route in routes"
-            :key="route.route_id"
-            @click="selectRoute(route.route_id)"
-            class="clickable-row"
-          >
-            <td>{{ route.route_name }}</td>
-            <td>{{ route.route_length }}</td>
-            <td>{{ route.route_duration }}</td>
-            <td>{{ route.route_difficulty }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div v-if="places.length">
-      <table>
-        <thead>
-          <tr>
-            <th>Название</th>
-            <th>Описание</th>
-            <th>Иконка</th>
-            <th>Местоположение</th>
-            <th>Площадь (кв. м)</th>
-            <th>Площадь на посетителя (кв. м)</th>
-            <th>Коэффициент возвращения</th>
-            <th>Дни</th>
-            <th>Используется в расчетах</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="place in places" :key="place.id" @click="editPlace(place)">
-            <td>{{ place.name }}</td>
-            <td>{{ place.description }}</td>
-            <td>{{ place.icon }}</td>
-            <td>{{ place.location }}</td>
-            <td>{{ place.used_in_calculations ? place.area : "-" }}</td>
-            <td>
-              {{ place.used_in_calculations ? place.area_per_visitor : "-" }}
-            </td>
-            <td>
-              {{ place.used_in_calculations ? place.return_coefficient : "-" }}
-            </td>
-            <td>{{ place.used_in_calculations ? place.days : "-" }}</td>
-            <td>{{ place.used_in_calculations ? "Да" : "Нет" }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    <div v-else>
-      <p>Нет мест для выбранного маршрута.</p>
-    </div>
-
-    <div v-if="selectedRouteId" class="add-place-form">
-      <h4>
-        {{ editingPlace ? "Редактировать место" : "Добавить новое место" }}
-      </h4>
-      <form @submit.prevent="addPlace()">
-        <div class="form-grid">
-          <div class="form-check">
-            <input
-              type="checkbox"
-              id="calc"
-              v-model="newPlace.used_in_calculations"
-            />
-            <label for="calc"> Используется в расчетах: </label>
-          </div>
-          <div class="form-group">
-            <label>Название:</label>
-            <input type="text" v-model="newPlace.name" required />
-          </div>
-          <div class="form-group">
-            <label>Описание:</label>
-            <textarea v-model="newPlace.description" required></textarea>
-          </div>
-          <div class="form-group">
-            <label>Иконка:</label>
-            <input type="text" v-model="newPlace.icon" />
-          </div>
-          <template v-if="newPlace.used_in_calculations">
-            <div class="form-group">
-              <label>Площадь (кв. м):</label>
-              <input type="number" v-model="newPlace.area" required />
-            </div>
-            <div class="form-group">
-              <label>Площадь на посетителя (кв. м):</label>
-              <input
-                type="number"
-                v-model="newPlace.area_per_visitor"
-                required
-              />
-            </div>
-            <div class="form-group">
-              <label>Коэффициент возвращения:</label>
-              <input
-                type="number"
-                v-model="newPlace.return_coefficient"
-                required
-                step="0.01"
-              />
-            </div>
-            <div class="form-group">
-              <label>Дни:</label>
-              <input type="number" v-model="newPlace.days" required />
-            </div>
-          </template>
-        </div>
-        <div class="form-group full-width">
-          <button type="submit">
-            {{ editingPlace ? "Обновить место" : "Добавить место" }}
-          </button>
-        </div>
-      </form>
-    </div>
+  <div class="places-filters">
+    <CustomSelect
+      v-model="selectedParkId"
+      :options="parkOptions"
+      @update:modelValue="loadRoutes"
+    />
+    <CustomSelect
+      v-model="selectedRouteId"
+      :options="routeOptions"
+      @update:modelValue="loadPlaces"
+    />
   </div>
+
+  <div v-if="places.length">
+    <table>
+      <thead>
+        <tr>
+          <th>Название</th>
+          <th>Описание</th>
+          <th>Иконка</th>
+          <th>Площадь (кв. м)</th>
+          <th>Площадь на посетителя (кв. м)</th>
+          <th>Коэффициент возвращения</th>
+          <th>Дни</th>
+          <th>Используется в расчетах</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="place in places" :key="place.id" @click="editPlace(place)">
+          <td>{{ place.name }}</td>
+          <td><TruncatedTextCell :text="place.description" /></td>
+          <td><img :src="place.icon" alt="нет иконки" class="place-icon" /></td>
+          <td>{{ place.used_in_calculations ? place.area : "-" }}</td>
+          <td>
+            {{ place.used_in_calculations ? place.area_per_visitor : "-" }}
+          </td>
+          <td>
+            {{ place.used_in_calculations ? place.return_coefficient : "-" }}
+          </td>
+          <td>{{ place.used_in_calculations ? place.days : "-" }}</td>
+          <td>{{ place.used_in_calculations ? "Да" : "Нет" }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div v-else>
+    <p>Нет мест для выбранного маршрута.</p>
+  </div>
+
+  <Button class="places-tab-button" @click="openAddPlaceModal">
+    Добавить новое место
+  </Button>
+
+  <PlaceFormModal
+    v-if="showPlaceFormModal"
+    :place="selectedPlace"
+    :route-id="selectedRouteId"
+    :route="route"
+    @close="closePlaceFormModal"
+    @submit="handlePlaceFormSubmit"
+  />
+  <Pagination
+    :page="page"
+    :totalPages="totalPages"
+    @prev-page="prevPage"
+    @next-page="nextPage"
+    @set-page="setPage"
+  />
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
-import { fetchRoutes } from "@/api/routes";
+import { ref, onMounted, computed, watch } from "vue";
+import { fetchRoutesByParkId, fetchParks } from "@/api/routes";
 import { fetchPlacesByRouteId, createPlace } from "@/api/place";
+import PlaceFormModal from "@/components/PlaceFormModal.vue";
+import Pagination from "@/components/Pagination.vue";
+import CustomSelect from "@/components/CustomSelect.vue";
+import Button from "@/components/Button.vue";
+import TruncatedTextCell from "@/components/TruncatedTextCell.vue";
 
+const page = ref(1);
+const limit = ref(10);
+const total = ref(0);
+const parks = ref([]);
 const routes = ref([]);
 const places = ref([]);
+const selectedParkId = ref(null);
 const selectedRouteId = ref(null);
-const editingPlace = ref(false);
+const selectedPlace = ref(null);
+const showPlaceFormModal = ref(false);
+const route = ref(null);
 
-const newPlace = ref({
-  id: null,
-  route_id: null,
-  name: "",
-  description: "",
-  icon: "",
-  location: "",
-  area: null,
-  area_per_visitor: null,
-  return_coefficient: null,
-  days: null,
-  used_in_calculations: true,
-});
+const totalPages = computed(() => Math.ceil(total.value / limit.value));
+
+const parkOptions = computed(() =>
+  parks.value.map((park) => ({ value: park.id, label: park.name }))
+);
+const routeOptions = computed(() =>
+  routes.value.map((route) => ({
+    value: route.route_id,
+    label: route.route_name,
+  }))
+);
+
+const loadParks = async () => {
+  try {
+    parks.value = await fetchParks();
+    if (parks.value.length > 0) {
+      selectedParkId.value = parks.value[0].id;
+      loadRoutes();
+    }
+  } catch (error) {
+    console.error("Failed to fetch parks:", error);
+  }
+};
 
 const loadRoutes = async () => {
+  if (!selectedParkId.value) return;
+
   try {
-    routes.value = await fetchRoutes(1, 100); // загрузка всех маршрутов
+    const response = await fetchRoutesByParkId(selectedParkId.value, 1, 100);
+    routes.value = response.data;
+    if (routes.value.length > 0) {
+      selectedRouteId.value = routes.value[0].route_id;
+      route.value = routes.value[0];
+      loadPlaces();
+    }
   } catch (error) {
     console.error("Failed to fetch routes:", error);
   }
@@ -168,53 +135,80 @@ const loadPlaces = async () => {
   if (!selectedRouteId.value) return;
 
   try {
-    places.value = await fetchPlacesByRouteId(selectedRouteId.value);
-    newPlace.value.route_id = selectedRouteId.value; // set the route_id for newPlace
+    const response = await fetchPlacesByRouteId(
+      selectedRouteId.value,
+      page.value,
+      limit.value
+    );
+    places.value = response.data;
+    total.value = response.total;
   } catch (error) {
     console.error("Failed to fetch places:", error);
   }
 };
 
-const selectRoute = (routeId) => {
-  selectedRouteId.value = routeId;
-  loadPlaces();
-};
-
-const addPlace = async () => {
-  try {
-    await createPlace(newPlace.value);
-    await loadPlaces(); // reload places after adding
-    resetForm();
-  } catch (error) {
-    console.error("Failed to add place:", error);
-  }
-};
-
-const editPlace = (place) => {
-  newPlace.value = { ...place };
-  editingPlace.value = true;
-};
-
-const resetForm = () => {
-  newPlace.value = {
+const openAddPlaceModal = () => {
+  selectedPlace.value = {
     id: null,
     route_id: selectedRouteId.value,
     name: "",
     description: "",
     icon: "",
     location: "",
-    area: null,
-    area_per_visitor: null,
-    return_coefficient: null,
-    days: null,
+    area: 0,
+    area_per_visitor: 0,
+    return_coefficient: 0,
+    days: 0,
     used_in_calculations: true,
   };
-  editingPlace.value = false;
+  showPlaceFormModal.value = true;
+};
+
+const editPlace = (place) => {
+  selectedPlace.value = { ...place };
+  showPlaceFormModal.value = true;
+};
+
+const closePlaceFormModal = () => {
+  showPlaceFormModal.value = false;
+  selectedPlace.value = null;
+};
+
+const handlePlaceFormSubmit = async (placeData) => {
+  try {
+    await createPlace(placeData);
+    await loadPlaces();
+    closePlaceFormModal();
+  } catch (error) {
+    console.error("Failed to add/update place:", error);
+  }
+};
+
+const nextPage = () => {
+  if (page.value < totalPages.value) {
+    page.value += 1;
+    loadPlaces();
+  }
+};
+
+const prevPage = () => {
+  if (page.value > 1) {
+    page.value -= 1;
+    loadPlaces();
+  }
+};
+
+const setPage = (pageNumber) => {
+  page.value = pageNumber;
+  loadPlaces();
 };
 
 onMounted(() => {
-  loadRoutes();
+  loadParks();
 });
+
+watch(selectedParkId, loadRoutes);
+watch(selectedRouteId, loadPlaces);
 </script>
 
 <style scoped>
@@ -249,6 +243,11 @@ td {
 th {
   background-color: #f2f2f2;
   text-align: left;
+}
+
+.place-icon {
+  width: 24px;
+  height: 24px;
 }
 
 .add-place-form {
@@ -318,5 +317,14 @@ button[type="submit"]:hover {
 
 .clickable-row:hover {
   background-color: #f0f0f0;
+}
+
+.places-filters {
+  display: flex;
+  margin-bottom: 1em;
+}
+
+.places-tab-button {
+  margin: 20px 0 10px;
 }
 </style>

@@ -13,6 +13,7 @@
     "leaflet-gpx": "^1.7.0",
     "mathlive": "^0.100.0",
     "register-service-worker": "^1.7.2",
+    "simplify-path": "^1.1.0",
     "vue": "^3.2.13",
     "vue-mathjax-next": "^0.0.6",
     "vue-router": "^4.0.3"

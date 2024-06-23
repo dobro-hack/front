@@ -1,18 +1,29 @@
 <template>
   <tr @click="setSelectedRequest(request)">
-    <td>{{ request.route_name }}</td>
-    <td>{{ request.request_status }}</td>
+    <td>
+      <div class="route-details">
+        <div>{{ request.route_name }}</div>
+        <div class="park-name">{{ request.park_name }}</div>
+      </div>
+    </td>
+    <td>
+      <span :class="statusClass(request.request_status)">{{
+        request.request_status
+      }}</span>
+    </td>
     <td>{{ request.route_description }}</td>
-    <td>{{ request.route_length }}</td>
-    <td>{{ request.route_duration }}</td>
-    <td>{{ request.route_height }}</td>
+    <td>{{ request.quantity }}</td>
+    <td>
+      <div>{{ formatDate(request.request_start_date) }}</div>
+      <div>{{ formatTime(request.request_start_date) }}</div>
+    </td>
+    <td>{{ request.capacity }}</td>
   </tr>
   <tr
     v-if="selectedRequest && selectedRequest.request_id === request.request_id"
   >
     <td colspan="6" class="details">
       <div class="details-section">
-        <h3>О заявке</h3>
         <div class="detail-row">
           <div class="detail-item">
             <span class="detail-label">Парк:</span>
@@ -85,9 +96,64 @@ const props = defineProps({
   approve: Function,
   reject: Function,
 });
+
+const formatDate = (dateString) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString("ru-RU");
+};
+
+const formatTime = (dateString) => {
+  const date = new Date(dateString);
+  return date.toLocaleTimeString("ru-RU", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
+
+const statusClass = (status) => {
+  return {
+    "status-new": status === "Новая",
+    "status-approved": status === "Одобрено",
+    "status-rejected": status === "Отказано",
+  };
+};
+
+const getImageUrl = (routeId) => {
+  // Предполагается, что вы знаете, как формируются URL изображений
+  return `/path/to/images/${routeId}.jpg`;
+};
 </script>
 
-<style>
+<style scoped>
+.route-image {
+  width: 50px;
+  height: 50px;
+  border-radius: 8px;
+  margin-right: 10px;
+}
+
+.route-details {
+  display: inline-block;
+  vertical-align: top;
+}
+
+.park-name {
+  color: #6c757d;
+  font-size: 12px;
+}
+
+.status-new {
+  color: orange;
+}
+
+.status-approved {
+  color: green;
+}
+
+.status-rejected {
+  color: red;
+}
+
 .details {
   background-color: #f9f9f9;
   padding: 20px;

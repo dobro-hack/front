@@ -1,138 +1,55 @@
 <template>
-  <div class="container">
-    <div class="header">
-      <h3>Создание и редактирование маршрутов</h3>
-      <button class="create-button" @click="addNewRoute">Создать новый</button>
-    </div>
-    <div class="pagination-controls">
-      <button @click="prevPage" :disabled="page === 1">Previous</button>
-      <span>Страница {{ page }}</span>
-      <button @click="nextPage">Next</button>
-    </div>
-    <div class="table-wrapper">
-      <table>
-        <thead>
-          <tr>
-            <th>Название</th>
-            <th>Описание</th>
-            <th>Длина (км)</th>
-            <th>Время в пути (мин)</th>
-            <th>Сложность</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr
-            v-for="route in routes"
-            :key="route.route_id"
-            @click="selectRoute(route)"
-            class="clickable-row"
-          >
-            <td>{{ route.route_name }}</td>
-            <td>{{ route.route_description }}</td>
-            <td>{{ route.route_length }}</td>
-            <td>{{ route.route_duration }}</td>
-            <td>{{ route.route_difficulty }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    <form
-      v-if="newRouteAdding || selectedRoute"
-      @submit.prevent="createRoute"
-      class="form-grid"
-    >
-      <div class="form-group">
-        <label>Парк:</label>
-        <select v-model="newRoute.park_id" required>
-          <option v-for="park in parks" :key="park.id" :value="park.id">
-            {{ park.name }}
-          </option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Название маршрута:</label>
-        <input type="text" v-model="newRoute.name" required />
-      </div>
-      <div class="form-group">
-        <label>Описание маршрута:</label>
-        <textarea v-model="newRoute.description" required></textarea>
-      </div>
-      <div class="form-group">
-        <label>Как добраться:</label>
-        <input type="text" v-model="newRoute.how_to_get" required />
-      </div>
-      <div class="form-group">
-        <label>Что взять с собой:</label>
-        <input type="text" v-model="newRoute.what_to_take" required />
-      </div>
-      <div class="form-group">
-        <label>В случае ЧС:</label>
-        <input type="text" v-model="newRoute.in_emergency" required />
-      </div>
-      <div class="form-group">
-        <label>Рекомендации:</label>
-        <input type="text" v-model="newRoute.recommendations" required />
-      </div>
-      <div class="form-group">
-        <label>Фото (JSON):</label>
-        <textarea v-model="newRoute.photo"></textarea>
-      </div>
-      <div class="form-group">
-        <label>Длина маршрута (км):</label>
-        <input type="number" v-model="newRoute.length" required />
-      </div>
-      <div class="form-group">
-        <label>Время в пути (мин):</label>
-        <input type="number" v-model="newRoute.duration" required />
-      </div>
-      <div class="form-group">
-        <label>Высота (м):</label>
-        <input type="number" v-model="newRoute.height" />
-      </div>
-      <div class="form-group">
-        <label>Сложность маршрута:</label>
-        <select v-model="newRoute.difficulty" required>
-          <option value="easy">Легкий</option>
-          <option value="medium">Средний</option>
-          <option value="hard">Сложный</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Оптимальное расстояние между группами (км):</label>
-        <input type="number" v-model="newRoute.group_distance" required />
-      </div>
-      <div class="form-group">
-        <label>Среднее время прохождения маршрута (часов):</label>
-        <input type="number" v-model="newRoute.average_time" required />
-      </div>
-      <div class="form-group">
-        <label>Среднее количество человек в группе:</label>
-        <input type="number" v-model="newRoute.group_size" required />
-      </div>
-      <div class="form-group">
-        <label>Количество дней пребывания на маршруте:</label>
-        <input type="number" v-model="newRoute.days_on_route" required />
-      </div>
-      <div class="form-group full-width">
-        <button type="submit">
-          {{ newRouteAdding ? "Создать маршрут" : "Обновить маршрут" }}
-        </button>
-      </div>
-    </form>
-    <div v-if="createdRoute" class="route-info">
-      <h4>Маршрут создан успешно:</h4>
-    </div>
-    <MapAddRoute
-      v-if="selectedRoute || newRouteAdding"
-      :route="newRoute"
-      @updateGpxData="updateGpxData"
-    />
+  <div class="routes-header">
+    <button class="create-button" @click="addNewRoute">Создать маршрут</button>
   </div>
+  <Pagination
+    :page="page"
+    :totalPages="totalPages"
+    @prev-page="prevPage"
+    @next-page="nextPage"
+    @set-page="setPage"
+  />
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>Название</th>
+          <th>Описание</th>
+          <th>Длина (км)</th>
+          <th>Время в пути (мин)</th>
+          <th>Сложность</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          v-for="route in routes"
+          :key="route.route_id"
+          @click="selectRoute(route)"
+          class="clickable-row"
+        >
+          <td>{{ route.route_name }}</td>
+          <td>{{ route.route_description }}</td>
+          <td>{{ route.route_length }}</td>
+          <td>{{ route.route_duration }}</td>
+          <td>{{ route.route_difficulty }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <RouteForm
+    v-if="isFormVisible"
+    :route="newRoute"
+    :parks="parks"
+    @close="isFormVisible = false"
+    @submit="createRoute"
+  />
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
-import MapAddRoute from "./MapAddRoute.vue";
+import { ref, onMounted, computed } from "vue";
+import Pagination from "@/components/Pagination.vue";
+import RouteForm from "@/components/RouteForm.vue";
 import {
   createRoute as createRouteAPI,
   fetchParks,
@@ -141,6 +58,8 @@ import {
 
 const page = ref(1);
 const limit = ref(10);
+const total = ref(0);
+const isFormVisible = ref(false);
 const newRouteAdding = ref(false);
 const selectedRoute = ref(null);
 
@@ -188,11 +107,14 @@ const addNewRoute = () => {
     days_on_route: null,
     gpx_data: null,
   };
+  isFormVisible.value = true;
 };
 
 const parks = ref([]);
 const routes = ref([]);
 const createdRoute = ref(null);
+
+const totalPages = computed(() => Math.ceil(total.value / limit.value));
 
 const loadParks = async () => {
   try {
@@ -204,15 +126,19 @@ const loadParks = async () => {
 
 const loadRoutes = async (page, limit) => {
   try {
-    routes.value = await fetchRoutes(page, limit);
+    const response = await fetchRoutes(page, limit);
+    routes.value = response.data;
+    total.value = response.total;
   } catch (error) {
     console.error("Failed to fetch routes:", error);
   }
 };
 
 const nextPage = () => {
-  page.value += 1;
-  loadRoutes(page.value, limit.value);
+  if (page.value < totalPages.value) {
+    page.value += 1;
+    loadRoutes(page.value, limit.value);
+  }
 };
 
 const prevPage = () => {
@@ -222,8 +148,13 @@ const prevPage = () => {
   }
 };
 
+const setPage = (pageNumber) => {
+  page.value = pageNumber;
+  loadRoutes(page.value, limit.value);
+};
+
 const selectRoute = (route) => {
-  newRouteAdding.value = true;
+  newRouteAdding.value = false;
   selectedRoute.value = route;
   newRoute.value = { ...route };
   newRoute.value.id = route.route_id;
@@ -244,11 +175,12 @@ const selectRoute = (route) => {
   newRoute.value.group_size = route.group_size;
   newRoute.value.days_on_route = route.days_on_route;
   newRoute.value.gpx_data = route.gpx_data;
+  isFormVisible.value = true;
 };
 
-const createRoute = async () => {
+const createRoute = async (routeData) => {
   try {
-    const response = await createRouteAPI(newRoute.value);
+    const response = await createRouteAPI(routeData);
     createdRoute.value = response;
     newRoute.value = {
       id: null,
@@ -269,14 +201,11 @@ const createRoute = async () => {
       days_on_route: null,
       gpx_data: null,
     };
+    isFormVisible.value = false;
+    loadRoutes(page.value, limit.value); // Reload routes after creation
   } catch (error) {
     console.error("Failed to create route:", error);
   }
-};
-
-const updateGpxData = (gpxData) => {
-  console.warn("updateGpxData", updateGpxData);
-  newRoute.value.gpx_data = gpxData;
 };
 
 onMounted(() => {
@@ -292,10 +221,11 @@ onMounted(() => {
   background-color: #fff;
 }
 
-.header {
+.routes-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin: 10px 0 20px;
 }
 
 .create-button {
@@ -311,63 +241,8 @@ onMounted(() => {
   background-color: #218838;
 }
 
-.pagination-controls {
-  margin-bottom: 1em;
-}
-
 .table-wrapper {
   margin-bottom: 1em;
-}
-
-.form-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1em;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-}
-
-.form-group.full-width {
-  grid-column: span 4;
-}
-
-label {
-  color: #6d7885;
-  font-size: 13px;
-}
-
-input,
-select,
-textarea {
-  padding: 0.5em;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-button[type="submit"] {
-  background-color: #007bff;
-  color: white;
-  border: none;
-  padding: 0.5em 1em;
-  border-radius: 5px;
-  cursor: pointer;
-  width: 100%;
-}
-
-button[type="submit"]:hover {
-  background-color: #0056b3;
-}
-
-.route-info {
-  margin-top: 1em;
-  padding: 1em;
-  background-color: #f8f9fa;
-  border-radius: 5px;
 }
 
 .clickable-row {

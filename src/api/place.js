@@ -1,8 +1,10 @@
 import API_BASE_URL from "./config";
 
-export const fetchPlacesByRouteId = async (routeId) => {
+export const fetchPlacesByRouteId = async (routeId, page = 1, limit = 10) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/places/${routeId}`);
+    const response = await fetch(
+      `${API_BASE_URL}/places/${routeId}?page=${page}&limit=${limit}`
+    );
     if (!response.ok) {
       throw new Error(`An error occurred: ${response.statusText}`);
     }

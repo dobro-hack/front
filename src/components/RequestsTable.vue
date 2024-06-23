@@ -1,20 +1,15 @@
 <template>
   <div>
-    <div class="pagination-controls">
-      <button @click="prevPage" :disabled="page === 1">Previous</button>
-      <span>Страница {{ page }}</span>
-      <button @click="nextPage">Next</button>
-    </div>
     <div class="table-wrapper">
       <table>
         <thead>
           <tr>
-            <th>Название объявления</th>
+            <th>Маршрут</th>
             <th>Статус</th>
-            <th>Трансляция</th>
-            <th>Бюджет</th>
-            <th>Потрачено</th>
-            <th>Результат</th>
+            <th>Тип</th>
+            <th>Кол-во</th>
+            <th>Дата</th>
+            <th>Вместимость на дату</th>
           </tr>
         </thead>
         <tbody>
@@ -30,23 +25,35 @@
         </tbody>
       </table>
     </div>
+    <Pagination
+      :page="page"
+      :total-pages="totalPages"
+      @prev-page="prevPage"
+      @next-page="nextPage"
+      @set-page="setPage"
+    />
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import RequestsRow from "./RequestsRow.vue";
+import Pagination from "@/components/Pagination.vue";
 import { fetchRequests } from "@/api/requests";
 
 const requests = ref([]);
 const page = ref(1);
 const limit = ref(10);
+const total = ref(0);
 const selectedRequest = ref(null);
+
+const totalPages = computed(() => Math.ceil(total.value / limit.value));
 
 const loadRequests = async (page, limit) => {
   try {
-    const data = await fetchRequests(page, limit);
-    requests.value = data;
+    const response = await fetchRequests(page, limit);
+    requests.value = response.data;
+    total.value = response.total;
   } catch (error) {
     console.error("Failed to load requests:", error);
   }
@@ -69,8 +76,10 @@ const reject = () => {
 };
 
 const nextPage = () => {
-  page.value += 1;
-  loadRequests(page.value, limit.value);
+  if (page.value < totalPages.value) {
+    page.value += 1;
+    loadRequests(page.value, limit.value);
+  }
 };
 
 const prevPage = () => {
@@ -78,6 +87,11 @@ const prevPage = () => {
     page.value -= 1;
     loadRequests(page.value, limit.value);
   }
+};
+
+const setPage = (pageNumber) => {
+  page.value = pageNumber;
+  loadRequests(page.value, limit.value);
 };
 
 onMounted(() => {
@@ -120,22 +134,5 @@ tr:hover {
 tr.m--active {
   cursor: default;
   background: #f9f9f9;
-}
-
-button {
-  padding: 10px 20px;
-  border: none;
-  background-color: #007bff;
-  color: white;
-  cursor: pointer;
-}
-
-button:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-}
-
-button:hover:enabled {
-  background-color: #0056b3;
 }
 </style>

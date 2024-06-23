@@ -1,5 +1,19 @@
-// api/routes.js
 import API_BASE_URL from "./config";
+
+export const fetchRoutesByParkId = async (parkId, page, limit) => {
+  try {
+    const response = await fetch(
+      `${API_BASE_URL}/routes-sql?parkId=${parkId}&page=${page}&limit=${limit}`
+    );
+    if (!response.ok) {
+      throw new Error(`An error occurred: ${response.statusText}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Failed to fetch routes by park ID:", error);
+    throw error;
+  }
+};
 
 export const fetchRoutes = async (page, limit) => {
   try {
