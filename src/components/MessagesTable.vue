@@ -11,7 +11,6 @@
           <thead>
             <tr>
               <th>Сообщение</th>
-              <th>Статус</th>
               <th>Тип</th>
               <th>Дата отправки</th>
               <th>Пользователь</th>
@@ -20,10 +19,15 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="message in messages" :key="message.message_id">
-              <td><TruncatedTextCell :text="message.message_content" /></td>
-              <td>{{ message.message_status }}</td>
-              <td>{{ message.message_type }}</td>
+            <tr
+              v-for="message in messages"
+              :key="message.message_id"
+              @click="showMessageForm(message)"
+            >
+              <td>
+                <TruncatedTextCell :text="message.message_content" />
+              </td>
+              <td>{{ translateMessageType(message.message_type) }}</td>
               <td>{{ formatDate(message.message_sent_at) }}</td>
               <td>
                 {{ message.user_first_name }} {{ message.user_last_name }}
@@ -35,13 +39,13 @@
               >
                 <Button
                   class="message-button message-button-accept"
-                  @click="handleAction('accept', message.message_id)"
+                  @click.stop="handleAction('accept', message.message_id)"
                 >
                   Принять
                 </Button>
                 <Button
                   class="message-button message-button-decline"
-                  @click="handleAction('decline', message.message_id)"
+                  @click.stop="handleAction('decline', message.message_id)"
                 >
                   Отклонить
                 </Button>
@@ -60,23 +64,33 @@
       />
     </template>
     <NoRecordsFound v-else message="Таких записей не найдено" />
+    <MessageForm
+      v-if="isMessageFormVisible"
+      :message="currentMessage"
+      @close="closeMessageForm"
+    />
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, computed } from "vue";
-import { fetchMessages } from "@/api/messages";
+import { fetchMessages, updateMessageStatus } from "@/api/messages";
 import NoRecordsFound from "@/components/NoRecordsFound.vue";
 import Pagination from "@/components/Pagination.vue";
 import FilterGroup from "@/components/FilterGroup.vue";
 import Button from "./Button.vue";
 import TruncatedTextCell from "@/components/TruncatedTextCell.vue";
+import MessageForm from "@/components/MessageForm.vue";
+import messageTypeTranslations from "@/constants/messageTypeTranslations";
+import statusTypeTranslations from "@/constants/statusTypeTranslations";
 
 const messages = ref([]);
 const page = ref(1);
 const limit = ref(10);
 const total = ref(0);
 const currentFilter = ref({ status: "pending" });
+const isMessageFormVisible = ref(false);
+const currentMessage = ref("");
 
 const filterConfig = ref([
   {
@@ -125,9 +139,14 @@ const updateFilter = (key, value) => {
   loadMessages(page.value, limit.value, currentFilter.value);
 };
 
-const handleAction = (action, messageId) => {
-  console.log(`Action: ${action}, Message ID: ${messageId}`);
-  // Здесь вы можете добавить логику для обработки действия
+const handleAction = async (action, messageId) => {
+  const status = action === "accept" ? "delivered" : "declined";
+  try {
+    await updateMessageStatus(messageId, status);
+    loadMessages(page.value, limit.value, currentFilter.value); // Reload messages after updating status
+  } catch (error) {
+    console.error(`Failed to ${action} message:`, error);
+  }
 };
 
 const formatDate = (dateString) => {
@@ -140,6 +159,23 @@ const formatDate = (dateString) => {
   };
   const date = new Date(dateString);
   return date.toLocaleDateString("ru-RU", options);
+};
+
+const translateStatusType = (type) => {
+  return statusTypeTranslations[type] || type;
+};
+
+const translateMessageType = (type) => {
+  return messageTypeTranslations[type] || type;
+};
+
+const showMessageForm = (message) => {
+  currentMessage.value = message;
+  isMessageFormVisible.value = true;
+};
+
+const closeMessageForm = () => {
+  isMessageFormVisible.value = false;
 };
 
 onMounted(() => {

@@ -1,13 +1,13 @@
 <template>
   <div>
-    <div id="edit-map" style="width: 100%; height: 600px"></div>
+    <div id="edit-map" style="width: 100%; height: 300px"></div>
     <label class="custom-file-upload">
       <input type="file" @change="handleFileUpload" />
       <div class="upload-container">
         <div class="upload-icon">+</div>
         <div class="upload-text">
           <div class="upload-main-text">Загрузить файл маршрута</div>
-          <div class="upload-subtext">PGX, тип2, тип3</div>
+          <div class="upload-subtext">формат: gpx</div>
         </div>
       </div>
     </label>

@@ -23,5 +23,6 @@ const props = defineProps({
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 100%;
+  text-align: left;
 }
 </style>

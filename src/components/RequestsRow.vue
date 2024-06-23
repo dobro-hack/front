@@ -1,18 +1,22 @@
 <template>
   <tr @click="setSelectedRequest(request)">
     <td>
-      <div class="route-details">
-        <div>{{ request.route_name }}</div>
-        <div class="park-name">{{ request.park_name }}</div>
-      </div>
+      <RouteDetails :route="request"></RouteDetails>
     </td>
-    <td>{{ request.route_description }}</td>
     <td>{{ request.quantity }}</td>
     <td>
       <div>{{ formatDate(request.request_start_date) }}</div>
       <div>{{ formatTime(request.request_start_date) }}</div>
     </td>
-    <td>{{ request.capacity }}</td>
+    <td>
+      {{ getRouteLoadForDay(request.route_load, request.request_start_date) }} /
+      {{
+        getRouteMaxLoadForDay(
+          request.route_max_load,
+          request.request_start_date
+        )
+      }}
+    </td>
   </tr>
   <tr
     v-if="selectedRequest && selectedRequest.request_id === request.request_id"
@@ -76,7 +80,7 @@
 
 <script setup>
 import { defineProps } from "vue";
-import TruncatedTextCell from "@/components/TruncatedTextCell.vue";
+import RouteDetails from "@/components/RouteDetails.vue";
 
 const props = defineProps({
   request: Object,
@@ -107,9 +111,24 @@ const statusClass = (status) => {
   };
 };
 
-const getImageUrl = (routeId) => {
-  // Предполагается, что вы знаете, как формируются URL изображений
-  return `/path/to/images/${routeId}.jpg`;
+const getDayOfYear = (dateString) => {
+  const date = new Date(dateString);
+  const start = new Date(date.getFullYear(), 0, 0);
+  const diff = date - start;
+  const oneDay = 1000 * 60 * 60 * 24;
+  return Math.floor(diff / oneDay);
+};
+
+const getRouteLoadForDay = (routeLoad, dateString) => {
+  const dayOfYear = getDayOfYear(dateString);
+  const loadArray = routeLoad;
+  return loadArray[dayOfYear] || 0;
+};
+
+const getRouteMaxLoadForDay = (routeMaxLoad, dateString) => {
+  const dayOfYear = getDayOfYear(dateString);
+  const maxLoadArray = routeMaxLoad;
+  return maxLoadArray[dayOfYear] || 0;
 };
 </script>
 
@@ -119,11 +138,6 @@ const getImageUrl = (routeId) => {
   height: 50px;
   border-radius: 8px;
   margin-right: 10px;
-}
-
-.route-details {
-  display: inline-block;
-  vertical-align: top;
 }
 
 .park-name {

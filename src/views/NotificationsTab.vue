@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="notification-form">
     <h3>Создать уведомление</h3>
     <form @submit.prevent="submitForm">
       <div class="form-group">
@@ -10,17 +10,25 @@
         <label for="message">Текст уведомления:</label>
         <textarea id="message" v-model="message" required></textarea>
       </div>
-      <button type="submit">Отправить</button>
+      <Button type="submit">Отправить</Button>
     </form>
+    <SuccessMessageBar
+      v-if="showSuccess"
+      message="Сообщение успешно отправлено"
+      @close="showSuccess = false"
+    />
   </div>
 </template>
 
 <script setup>
 import { ref } from "vue";
 import { sendNotification } from "@/api/notifications";
+import SuccessMessageBar from "@/components/SuccessMessageBar.vue";
+import Button from "@/components/Button.vue";
 
 const title = ref("");
 const message = ref("");
+const showSuccess = ref(false);
 
 const submitForm = async () => {
   try {
@@ -28,6 +36,7 @@ const submitForm = async () => {
     console.log("Уведомление отправлено:", response);
     title.value = "";
     message.value = "";
+    showSuccess.value = true;
   } catch (error) {
     console.error("Ошибка при отправке уведомления:", error);
   }
@@ -35,6 +44,10 @@ const submitForm = async () => {
 </script>
 
 <style scoped>
+.notification-form {
+  position: relative;
+}
+
 .form-group {
   margin-bottom: 1em;
 }
@@ -53,18 +66,5 @@ textarea {
   border: 1px solid #ccc;
   border-radius: 5px;
   box-sizing: border-box;
-}
-
-button {
-  background-color: #007bff;
-  color: white;
-  border: none;
-  padding: 0.5em 1em;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-button:hover {
-  background-color: #0056b3;
 }
 </style>

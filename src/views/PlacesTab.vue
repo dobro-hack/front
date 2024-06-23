@@ -12,7 +12,7 @@
     />
   </div>
 
-  <div v-if="places.length">
+  <div v-if="places.length" class="table-wrapper">
     <table>
       <thead>
         <tr>
@@ -224,25 +224,9 @@ watch(selectedRouteId, loadPlaces);
   align-items: center;
 }
 
-.table-wrapper {
-  overflow-x: auto;
-  margin-bottom: 1em;
-}
-
 table {
   width: 100%;
   border-collapse: collapse;
-}
-
-th,
-td {
-  border: 1px solid #ddd;
-  padding: 8px;
-}
-
-th {
-  background-color: #f2f2f2;
-  text-align: left;
 }
 
 .place-icon {

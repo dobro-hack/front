@@ -5,7 +5,6 @@
         <thead>
           <tr>
             <th>Маршрут</th>
-            <th>Описание</th>
             <th>Кол-во</th>
             <th>Дата</th>
             <th>Вместимость на дату</th>
@@ -118,6 +117,7 @@ td {
 
 td {
   border-top: 1px solid #ddd;
+  text-align: center;
 }
 
 th {

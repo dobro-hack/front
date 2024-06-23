@@ -27,7 +27,7 @@
           @click="selectRoute(route)"
           class="clickable-row"
         >
-          <td>{{ route.route_name }}</td>
+          <td><RouteDetails :route="route"></RouteDetails></td>
           <td><TruncatedTextCell :text="route.route_description" /></td>
           <td>{{ route.route_length }}</td>
           <td>{{ route.route_duration }}</td>
@@ -56,6 +56,7 @@ import {
   fetchRoutes,
 } from "@/api/routes";
 import TruncatedTextCell from "@/components/TruncatedTextCell.vue";
+import RouteDetails from "@/components/RouteDetails.vue";
 
 const page = ref(1);
 const limit = ref(10);
