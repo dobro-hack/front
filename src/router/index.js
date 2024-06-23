@@ -5,6 +5,7 @@ import SatelliteIssuesTab from "../views/SatelliteIssuesTab.vue";
 import RoutesTab from "../views/RoutesTab.vue";
 import CapacityTab from "../views/CapacityTab.vue";
 import PlacesTab from "../views/PlacesTab.vue";
+import NotificationsTab from "../views/NotificationsTab.vue";
 
 const routes = [
   {
@@ -40,6 +41,11 @@ const routes = [
     path: "/capacity",
     name: "capacity",
     component: CapacityTab,
+  },
+  {
+    path: "/notifications",
+    name: "notifications",
+    component: NotificationsTab,
   },
   {
     path: "/:pathMatch(.*)*",

@@ -6,12 +6,7 @@
         <div class="park-name">{{ request.park_name }}</div>
       </div>
     </td>
-    <td>
-      <span :class="statusClass(request.request_status)">{{
-        request.request_status
-      }}</span>
-    </td>
-    <td></td>
+    <td>{{ request.route_description }}</td>
     <td>{{ request.quantity }}</td>
     <td>
       <div>{{ formatDate(request.request_start_date) }}</div>
@@ -74,10 +69,6 @@
       </div>
       <div class="details-section">
         {{ request.route_description }}
-      </div>
-      <div class="button-group">
-        <button @click.stop="approve">Согласовать</button>
-        <button @click.stop="reject">Отказать</button>
       </div>
     </td>
   </tr>
