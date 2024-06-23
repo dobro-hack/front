@@ -28,7 +28,7 @@
           class="clickable-row"
         >
           <td>{{ route.route_name }}</td>
-          <td>{{ route.route_description }}</td>
+          <td><TruncatedTextCell :text="route.route_description" /></td>
           <td>{{ route.route_length }}</td>
           <td>{{ route.route_duration }}</td>
           <td>{{ route.route_difficulty }}</td>
@@ -55,6 +55,7 @@ import {
   fetchParks,
   fetchRoutes,
 } from "@/api/routes";
+import TruncatedTextCell from "@/components/TruncatedTextCell.vue";
 
 const page = ref(1);
 const limit = ref(10);

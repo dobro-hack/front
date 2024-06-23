@@ -21,7 +21,7 @@
           </thead>
           <tbody>
             <tr v-for="message in messages" :key="message.message_id">
-              <td>{{ message.message_content }}</td>
+              <td><TruncatedTextCell :text="message.message_content" /></td>
               <td>{{ message.message_status }}</td>
               <td>{{ message.message_type }}</td>
               <td>{{ formatDate(message.message_sent_at) }}</td>
@@ -70,6 +70,7 @@ import NoRecordsFound from "@/components/NoRecordsFound.vue";
 import Pagination from "@/components/Pagination.vue";
 import FilterGroup from "@/components/FilterGroup.vue";
 import Button from "./Button.vue";
+import TruncatedTextCell from "@/components/TruncatedTextCell.vue";
 
 const messages = ref([]);
 const page = ref(1);

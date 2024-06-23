@@ -11,7 +11,7 @@
         request.request_status
       }}</span>
     </td>
-    <td>{{ request.route_description }}</td>
+    <td></td>
     <td>{{ request.quantity }}</td>
     <td>
       <div>{{ formatDate(request.request_start_date) }}</div>
@@ -32,12 +32,6 @@
           <div class="detail-item">
             <span class="detail-label">Маршрут:</span>
             <span class="detail-value">{{ selectedRequest.route_name }}</span>
-          </div>
-          <div class="detail-item">
-            <span class="detail-label">Тип:</span>
-            <span class="detail-value">{{
-              selectedRequest.route_description
-            }}</span>
           </div>
           <div class="detail-item">
             <span class="detail-label">Планируемая дата:</span>
@@ -78,6 +72,9 @@
           </div>
         </div>
       </div>
+      <div class="details-section">
+        {{ request.route_description }}
+      </div>
       <div class="button-group">
         <button @click.stop="approve">Согласовать</button>
         <button @click.stop="reject">Отказать</button>
@@ -88,6 +85,7 @@
 
 <script setup>
 import { defineProps } from "vue";
+import TruncatedTextCell from "@/components/TruncatedTextCell.vue";
 
 const props = defineProps({
   request: Object,

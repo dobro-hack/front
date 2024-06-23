@@ -18,7 +18,7 @@
           class="clickable-row"
         >
           <td>{{ route.route_name }}</td>
-          <td>{{ route.route_description }}</td>
+          <td><TruncatedTextCell :text="route.route_description" /></td>
           <td>{{ route.route_length }}</td>
           <td>{{ route.route_duration }}</td>
           <td>{{ route.route_difficulty }}</td>
@@ -81,6 +81,7 @@ import { ref, onMounted, computed } from "vue";
 import Pagination from "@/components/Pagination.vue";
 import { fetchRoutes } from "@/api/routes";
 import { fetchPlacesByRouteId } from "@/api/place";
+import TruncatedTextCell from "@/components/TruncatedTextCell.vue";
 
 const routes = ref([]);
 const page = ref(1);
