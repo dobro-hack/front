@@ -34,14 +34,6 @@
     @set-page="setPage"
   />
   <div v-if="selectedRoute" class="route-details">
-    <div>
-      <h4>Выбор периода расчета</h4>
-      <label>
-        Период (в днях):
-        <input type="number" v-model="calculationPeriod" required />
-      </label>
-      <button @click="calculateBCC">Рассчитать</button>
-    </div>
     <div v-if="formulas.length">
       <h4>Формулы для площадных объектов</h4>
       <div class="formula-container">
@@ -73,6 +65,14 @@
     <div v-if="rcc !== null">
       <h4>Предельно допустимая рекреационная емкость: {{ rcc }} человек</h4>
     </div>
+    <div>
+      <h4>Выбор периода расчета</h4>
+      <label>
+        Период (в днях):
+        <input type="number" v-model="calculationPeriod" required />
+      </label>
+      <Button @click="calculateBCC">Рассчитать</Button>
+    </div>
   </div>
 </template>
 
@@ -82,6 +82,7 @@ import Pagination from "@/components/Pagination.vue";
 import { fetchRoutes } from "@/api/routes";
 import { fetchPlacesByRouteId } from "@/api/place";
 import TruncatedTextCell from "@/components/TruncatedTextCell.vue";
+import Button from "@/components/Button.vue";
 
 const routes = ref([]);
 const page = ref(1);
@@ -296,5 +297,13 @@ form {
   display: flex;
   flex-direction: column;
   gap: 1em;
+}
+
+input {
+  padding: 0.5em;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box;
+  margin: 0 15px;
 }
 </style>
