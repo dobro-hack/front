@@ -122,13 +122,13 @@ const getDayOfYear = (dateString) => {
 const getRouteLoadForDay = (routeLoad, dateString) => {
   const dayOfYear = getDayOfYear(dateString);
   const loadArray = routeLoad;
-  return loadArray[dayOfYear] || 0;
+  return loadArray ? loadArray[dayOfYear] : 0;
 };
 
 const getRouteMaxLoadForDay = (routeMaxLoad, dateString) => {
   const dayOfYear = getDayOfYear(dateString);
   const maxLoadArray = routeMaxLoad;
-  return maxLoadArray[dayOfYear] || 0;
+  return maxLoadArray ? maxLoadArray[dayOfYear] : 0;
 };
 </script>
 
